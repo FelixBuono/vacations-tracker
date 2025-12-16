@@ -1,0 +1,49 @@
+{
+  "users": [
+    {
+      "id": "e22c46f9-334f-4c90-8d8f-ecacb1e5f617",
+      "name": "Felix Bueno",
+      "email": "felix.bueno@hirehoratio.co",
+      "birthday": "1985-07-27",
+      "totalVacationDays": 14,
+      "vacations": [],
+      "team": "Product Manager"
+    },
+    {
+      "id": "c52f1d9f-a7df-4bb9-b867-888a7af40a55",
+      "name": "Jeudy Tavarez",
+      "email": "jeudy.tavarez@hirehoratio.co",
+      "birthday": "1983-10-06",
+      "totalVacationDays": 18,
+      "vacations": [],
+      "team": "Data & Product Support"
+    },
+    {
+      "id": "26efe912-98f8-4e77-9ca2-0e14373b3764",
+      "name": "Juan Henao",
+      "email": "juan.henao@hirehoratio.co",
+      "birthday": "1997-10-18",
+      "totalVacationDays": 14,
+      "vacations": [],
+      "team": "Data & Product Support"
+    },
+    {
+      "id": "25199774-5613-4ff7-b90b-a1de59ab24f1",
+      "name": "Sebastian Chaparro",
+      "email": "sebastian.chaparro@hirehoratio.co",
+      "birthday": "1996-12-12",
+      "totalVacationDays": 14,
+      "vacations": [],
+      "team": "Data & Product Support"
+    },
+    {
+      "id": "b1e48c31-391a-4626-b0e3-609a7ba2d91f",
+      "name": "Albany Solano",
+      "email": "albany.solano@hirehoratio.co",
+      "birthday": "1998-05-25",
+      "totalVacationDays": 14,
+      "vacations": [],
+      "team": "Data & Product Support"
+    }
+  ]
+}

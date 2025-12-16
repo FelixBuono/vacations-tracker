@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap');
+
+:root {
+  /* Hire Horatio Brand Colors */
+  --primary-color: #003333;
+  /* Deep Teal */
+  --primary-hover: #004d4d;
+  --secondary-color: #de7c4c;
+  /* Burnt Orange */
+  --accent-yellow: #f98b88;
+  /* Soft Pink/Salmon */
+  --accent-green: #478800;
+  /* Fresh Green */
+  --danger: #66023c;
+  /* Deep Maroon */
+
+  --bg-color: #fdfbf7;
+  /* Light Cream */
+  --card-bg: #ffffff;
+  --text-main: #003333;
+  --text-secondary: #5c6b6b;
+
+  --border-radius: 12px;
+  --shadow: 0 10px 30px -10px rgba(0, 51, 51, 0.1);
+  --shadow-hover: 0 20px 40px -10px rgba(0, 51, 51, 0.15);
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 51, 51, 0.05);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  /* Pill shape */
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(0, 51, 51, 0.2);
+}
+
+.btn-danger {
+  background-color: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #80034b;
+  box-shadow: 0 4px 12px rgba(102, 2, 60, 0.2);
+}
+
+input,
+select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background-color: #fcfcfc;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  background-color: white;
+}
+
+h1,
+h2,
+h3 {
+  margin-top: 0;
+  color: var(--primary-color);
+}
+
+h1 {
+  font-weight: 800;
+}
+
+h2 {
+  font-weight: 700;
+}
+
+h3 {
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.flex {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+@keyframes glow {
+  0% {
+    filter: drop-shadow(0 0 2px var(--primary-color));
+  }
+
+  33% {
+    filter: drop-shadow(0 0 2px var(--secondary-color));
+  }
+
+  66% {
+    filter: drop-shadow(0 0 2px var(--accent-yellow));
+  }
+
+  100% {
+    filter: drop-shadow(0 0 2px var(--danger));
+  }
+}
+
+.birthday-glow {
+  animation: glow 3s infinite alternate;
+}
+
+.app-title {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 60%, var(--accent-yellow) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  /* Clean look */
+  letter-spacing: -1.5px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.app-title:hover {
+  transform: scale(1.01);
+}
