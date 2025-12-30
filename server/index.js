@@ -30,8 +30,12 @@ let calendarAuth = null;
 
 // Calendar Routes
 app.get('/api/auth/url', (req, res) => {
-  const url = getAuthUrl();
-  res.json({ url });
+  try {
+    const url = getAuthUrl();
+    res.json({ url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post('/api/auth/callback', async (req, res) => {

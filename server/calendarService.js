@@ -7,6 +7,10 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 export const getAuthUrl = () => {
+    if (!process.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID === 'your_google_client_id') {
+        throw new Error('Google Calendar credentials are not configured in server/.env');
+    }
+
     const scopes = ['https://www.googleapis.com/auth/calendar'];
     return oauth2Client.generateAuthUrl({
         access_type: 'offline',

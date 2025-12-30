@@ -171,12 +171,14 @@ function App() {
   };
 
   const handleConnectCalendar = async () => {
-    const res = await fetch(`${API_URL}/auth/url`);
-    const { url } = await res.json();
-    // In a real app, we'd redirect. For this demo, we'll open in new tab and ask user to copy code (simplified flow)
-    // Or better, we just log it or show it. 
-    // Actually, standard flow is redirect. Let's do a popup or redirect.
-    window.location.href = url;
+    try {
+      const res = await fetch(`${API_URL}/auth/url`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      window.location.href = data.url;
+    } catch (error) {
+      alert(`Cannot connect to calendar: ${error.message}\n\nPlease check server/.env configuration.`);
+    }
   };
 
   // Check for code in URL (callback handling)
@@ -394,11 +396,18 @@ function App() {
     <div className="container">
       <header className="flex justify-between" style={{ marginBottom: '2rem', alignItems: 'center' }}>
         <div className="flex" style={{ alignItems: 'center' }}>
-          <h1 onClick={() => setView('yearly')} className="app-title">
-            <span>🌴</span>
-            <span>Vacations & Birthdays Tracker</span>
-            <span>🎂</span>
-          </h1>
+          <div onClick={() => setView('yearly')} className="app-header-container">
+            <div className="header-icon icon-left">🌴</div>
+            <div className="title-text-container">
+              <div className="title-line-1">
+                <span className="word-vacations">Vacations</span>
+                <span className="word-amp">&</span>
+                <span className="word-birthdays">Birthdays</span>
+              </div>
+              <div className="title-line-2">Tracker</div>
+            </div>
+            <div className="header-icon icon-right">🎂</div>
+          </div>
         </div>
         <div className="flex" style={{ gap: '1rem', alignItems: 'center' }}>
           {(view === 'dashboard' || view === 'yearly') && (

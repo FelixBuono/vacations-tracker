@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* Hire Horatio Brand Colors */
@@ -170,24 +171,109 @@ h3 {
   animation: glow 3s infinite alternate;
 }
 
-.app-title {
-  font-size: 3rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 60%, var(--accent-yellow) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-shadow: none;
-  /* Clean look */
-  letter-spacing: -1.5px;
-  margin: 0;
+.app-header-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.5rem;
   cursor: pointer;
   transition: transform 0.2s ease;
+  padding: 0.5rem;
 }
 
-.app-title:hover {
+.app-header-container:hover {
   transform: scale(1.01);
+}
+
+.header-icon {
+  font-size: 3rem;
+  display: flex;
+  align-items: center;
+}
+
+.icon-left {
+  color: var(--primary-color);
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.icon-left:hover {
+  animation: sway 0.5s ease-in-out infinite;
+}
+
+.icon-right {
+  color: var(--accent-yellow);
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.icon-right:hover {
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes sway {
+
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.title-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  font-family: 'Poppins', sans-serif;
+}
+
+.title-line-1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.word-vacations {
+  color: var(--primary-color);
+}
+
+.word-amp {
+  color: var(--secondary-color);
+}
+
+.word-birthdays {
+  color: var(--secondary-color);
+}
+
+.title-line-2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--secondary-color);
+  margin-top: -0.2rem;
+  letter-spacing: 0.5px;
 }
