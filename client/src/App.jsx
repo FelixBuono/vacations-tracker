@@ -608,24 +608,7 @@ function App() {
 
           {view === 'yearly' ? (
             <>
-              <button
-                className="btn"
-                onClick={handleConnectCalendar}
-                style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  border: 'none',
-                  whiteSpace: 'nowrap',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  height: '40px',
-                  padding: '0 1rem',
-                  boxSizing: 'border-box'
-                }}
-              >
-                📅 Connect Calendar
-              </button>
+
               <button
                 className="btn"
                 onClick={() => setView('dashboard')}
@@ -646,24 +629,7 @@ function App() {
             </>
           ) : (
             <>
-              <button
-                className="btn"
-                onClick={handleConnectCalendar}
-                style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  border: 'none',
-                  whiteSpace: 'nowrap',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  height: '40px',
-                  padding: '0 1rem',
-                  boxSizing: 'border-box'
-                }}
-              >
-                📅 Connect Calendar
-              </button>
+
               {view !== 'dashboard' && (
                 <button
                   className="btn"
