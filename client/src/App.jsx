@@ -624,7 +624,7 @@ function App() {
                   boxSizing: 'border-box'
                 }}
               >
-                View Roster
+                Roster
               </button>
             </>
           ) : (
