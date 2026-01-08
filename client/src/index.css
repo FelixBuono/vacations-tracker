@@ -26,6 +26,54 @@
   --shadow-hover: 0 20px 40px -10px rgba(0, 51, 51, 0.15);
 }
 
+body.dark-mode {
+  --bg-color: #121212;
+  --card-bg: #ffffff;
+  /* user requested white cards in dark mode */
+  --text-main: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --primary-color: #4fd1c5;
+  /* Brighter Teal */
+  --primary-hover: #89e0d1;
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .card {
+  color: #003333;
+  /* Ensure text inside white cards is dark */
+}
+
+body.dark-mode .card h2,
+body.dark-mode .card h3,
+body.dark-mode .card p,
+body.dark-mode .card strong {
+  color: #003333 !important;
+}
+
+body.dark-mode .card p.text-secondary {
+  color: #5c6b6b !important;
+}
+
+body.dark-mode .btn-primary {
+  color: #003333;
+  /* Dark text on bright button */
+  font-weight: 700;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+  background-color: #2d2d2d;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+  background-color: #333;
+  border-color: var(--secondary-color);
+}
+
 body {
   font-family: 'Outfit', sans-serif;
   background-color: var(--bg-color);

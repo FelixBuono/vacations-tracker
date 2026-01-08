@@ -13,6 +13,24 @@ function App() {
   const [editingUserId, setEditingUserId] = useState(null);
   const [calculatedDays, setCalculatedDays] = useState(0);
 
+
+
+  // Theme State
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -521,6 +539,26 @@ function App() {
 
   return (
     <div className="container">
+      <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 1000 }}>
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '1.5rem',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            borderRadius: '50%',
+            backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+        >
+          {theme === 'light' ? '🌙' : '💡'}
+        </button>
+      </div>
+
       <header className="flex justify-between" style={{ marginBottom: '2rem', alignItems: 'center' }}>
         <div className="flex" style={{ alignItems: 'center' }}>
           <div onClick={() => setView('yearly')} className="app-header-container">
@@ -902,6 +940,10 @@ function App() {
 
                 <div style={{ marginTop: '1.5rem' }}>
                   <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday + 'T12:00:00').toLocaleString('default', { month: 'long', day: 'numeric' }) : 'Not set'}</p>
+                  <p><strong>Hiring Date:</strong> {selectedUser.hiringDate ? new Date(selectedUser.hiringDate + 'T12:00:00').toLocaleDateString() : 'Not set'}</p>
+                  {selectedUser.hiringDate && (
+                    <p><strong>Tenure:</strong> {calculateTenure(selectedUser.hiringDate)}</p>
+                  )}
                 </div>
               </div>
             </div>
