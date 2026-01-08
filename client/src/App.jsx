@@ -785,7 +785,7 @@ function App() {
                         <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{user.team || 'No Team'}</p>
 
                         {user.hiringDate && (
-                          <div style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', backgroundColor: 'var(--bg-color)', padding: '0.2rem 0.5rem', borderRadius: '4px', display: 'inline-block' }}>
+                          <div style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', backgroundColor: 'var(--inner-bg)', padding: '0.2rem 0.5rem', borderRadius: '4px', display: 'inline-block' }}>
                             Time: <strong>{calculateTenure(user.hiringDate)}</strong>
                           </div>
                         )}
@@ -885,7 +885,7 @@ function App() {
                     onChange={e => setVacationForm({ ...vacationForm, holidays: e.target.value })}
                   />
 
-                  <div style={{ marginBottom: '1rem', padding: '0.5rem', background: 'var(--bg-color)', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
+                  <div style={{ marginBottom: '1rem', padding: '0.5rem', background: 'var(--inner-bg)', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
                     <strong>Days to Deduct: {calculatedDays}</strong>
                     <p style={{ fontSize: '0.8rem', margin: '0.2rem 0 0' }}>(Business days - Holidays)</p>
                   </div>
@@ -931,7 +931,7 @@ function App() {
                   {selectedUser.team && <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>{selectedUser.team}</p>}
                 </div>
 
-                <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: 'var(--border-radius)', textAlign: 'center' }}>
+                <div style={{ padding: '1rem', background: 'var(--inner-bg)', borderRadius: 'var(--border-radius)', textAlign: 'center' }}>
                   <h3 style={{ fontSize: '2rem', color: 'var(--primary-color)', margin: '0 0 0.5rem 0' }}>
                     {calculateRemainingDays(selectedUser)} / {selectedUser.totalVacationDays}
                   </h3>
