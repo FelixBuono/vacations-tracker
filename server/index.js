@@ -62,6 +62,7 @@ app.post('/api/users', async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     birthday: req.body.birthday, // YYYY-MM-DD
+    hiringDate: req.body.hiringDate, // YYYY-MM-DD
     totalVacationDays: req.body.totalVacationDays || 0,
     vacations: [], // Array of { id, startDate, endDate, daysUsed }
     ...req.body
@@ -69,6 +70,35 @@ app.post('/api/users', async (req, res) => {
   db.data.users.push(newUser);
   await db.write();
   res.status(201).json(newUser);
+});
+
+app.post('/api/users/bulk', async (req, res) => {
+  await db.read();
+  const users = req.body;
+
+  if (!Array.isArray(users)) {
+    return res.status(400).json({ error: 'Body must be an array of users' });
+  }
+
+  const createdUsers = users.map(user => ({
+    id: crypto.randomUUID(),
+    name: user.name,
+    email: user.email,
+    team: user.team || '',
+    birthday: user.birthday || '', // YYYY-MM-DD
+    hiringDate: user.hiringDate || '', // YYYY-MM-DD
+    totalVacationDays: user.totalVacationDays || 20,
+    vacations: [],
+    ...user
+  })).filter(u => u.name && u.email); // Basic validation
+
+  if (createdUsers.length === 0) {
+    return res.status(400).json({ error: 'No valid users to add' });
+  }
+
+  db.data.users.push(...createdUsers);
+  await db.write();
+  res.status(201).json({ count: createdUsers.length, users: createdUsers });
 });
 
 app.put('/api/users/:id', async (req, res) => {

@@ -174,7 +174,7 @@ h3 {
 .app-header-container {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   cursor: pointer;
   transition: transform 0.2s ease;
   padding: 0.5rem;
@@ -185,7 +185,7 @@ h3 {
 }
 
 .header-icon {
-  font-size: 3rem;
+  font-size: 2rem;
   display: flex;
   align-items: center;
 }
@@ -252,10 +252,10 @@ h3 {
 }
 
 .title-line-1 {
-  font-size: 2.2rem;
+  font-size: 1.2rem;
   font-weight: 700;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .word-vacations {
@@ -271,9 +271,9 @@ h3 {
 }
 
 .title-line-2 {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--secondary-color);
-  margin-top: -0.2rem;
+  margin-top: -0.1rem;
   letter-spacing: 0.5px;
 }

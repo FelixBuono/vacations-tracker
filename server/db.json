@@ -7,7 +7,8 @@
       "birthday": "1985-07-27",
       "totalVacationDays": 14,
       "vacations": [],
-      "team": "Product Manager"
+      "team": "Product Manager",
+      "hiringDate": "2023-04-14"
     },
     {
       "id": "c52f1d9f-a7df-4bb9-b867-888a7af40a55",
@@ -15,8 +16,22 @@
       "email": "jeudy.tavarez@hirehoratio.co",
       "birthday": "1983-10-06",
       "totalVacationDays": 18,
-      "vacations": [],
-      "team": "Data & Product Support"
+      "vacations": [
+        {
+          "id": "53389fe0-1166-4b50-9020-f9caf351d9a2",
+          "startDate": "2026-10-19",
+          "endDate": "2026-10-27",
+          "daysUsed": 7
+        },
+        {
+          "id": "f081382a-6bbc-4c95-982e-6ba112c14450",
+          "startDate": "2026-11-16",
+          "endDate": "2026-11-24",
+          "daysUsed": 7
+        }
+      ],
+      "team": "Data & Product Support",
+      "hiringDate": "2021-08-09"
     },
     {
       "id": "26efe912-98f8-4e77-9ca2-0e14373b3764",
@@ -25,7 +40,8 @@
       "birthday": "1997-10-18",
       "totalVacationDays": 14,
       "vacations": [],
-      "team": "Data & Product Support"
+      "team": "Data & Product Support",
+      "hiringDate": "2024-07-08"
     },
     {
       "id": "25199774-5613-4ff7-b90b-a1de59ab24f1",
@@ -33,8 +49,16 @@
       "email": "sebastian.chaparro@hirehoratio.co",
       "birthday": "1996-12-12",
       "totalVacationDays": 14,
-      "vacations": [],
-      "team": "Data & Product Support"
+      "vacations": [
+        {
+          "id": "e5bd496e-425c-4d2a-b3db-635d86eafe69",
+          "startDate": "2026-01-20",
+          "endDate": "2026-01-27",
+          "daysUsed": 6
+        }
+      ],
+      "team": "Data & Product Support",
+      "hiringDate": "2025-07-07"
     },
     {
       "id": "b1e48c31-391a-4626-b0e3-609a7ba2d91f",
@@ -42,8 +66,22 @@
       "email": "albany.solano@hirehoratio.co",
       "birthday": "1998-05-25",
       "totalVacationDays": 14,
-      "vacations": [],
-      "team": "Data & Product Support"
+      "vacations": [
+        {
+          "id": "84b75f7c-4363-4df9-830f-2363ca84d1e5",
+          "startDate": "2026-03-19",
+          "endDate": "2026-03-27",
+          "daysUsed": 7
+        },
+        {
+          "id": "19c9a285-b9df-478d-961b-8acc26033d83",
+          "startDate": "2026-09-23",
+          "endDate": "2026-10-02",
+          "daysUsed": 7
+        }
+      ],
+      "team": "Data & Product Support",
+      "hiringDate": "2025-04-25"
     }
   ]
 }

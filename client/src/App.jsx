@@ -7,7 +7,7 @@ function App() {
   const [users, setUsers] = useState([]);
   const [view, setView] = useState('yearly'); // yearly, dashboard, user-details, add-user
   const [selectedUser, setSelectedUser] = useState(null);
-  const [formData, setFormData] = useState({ name: '', email: '', team: '', birthday: '', totalVacationDays: 20 });
+  const [formData, setFormData] = useState({ name: '', email: '', team: '', birthday: '', hiringDate: '', totalVacationDays: 20 });
   const [vacationForm, setVacationForm] = useState({ startDate: '', endDate: '', holidays: 0 });
   const [editingVacationId, setEditingVacationId] = useState(null);
   const [editingUserId, setEditingUserId] = useState(null);
@@ -63,7 +63,7 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      setFormData({ name: '', email: '', team: '', birthday: '', totalVacationDays: 20 });
+      setFormData({ name: '', email: '', team: '', birthday: '', hiringDate: '', totalVacationDays: 20 });
       setEditingUserId(null);
       setView('dashboard');
       fetchUsers();
@@ -83,6 +83,7 @@ function App() {
       email: selectedUser.email,
       team: selectedUser.team || '',
       birthday: selectedUser.birthday || '',
+      hiringDate: selectedUser.hiringDate || '',
       totalVacationDays: selectedUser.totalVacationDays
     });
     setEditingUserId(selectedUser.id);
@@ -102,7 +103,7 @@ function App() {
       }
 
       setEditingUserId(null);
-      setFormData({ name: '', email: '', team: '', birthday: '', totalVacationDays: 20 });
+      setFormData({ name: '', email: '', team: '', birthday: '', hiringDate: '', totalVacationDays: 20 });
       setView('dashboard');
       fetchUsers();
     } catch (error) {
@@ -181,6 +182,22 @@ function App() {
     }
   };
 
+  const calculateTenure = (hiringDate) => {
+    if (!hiringDate) return '';
+    const start = new Date(hiringDate);
+    const now = new Date();
+
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    return `${years.toString().padStart(2, '0')}Y ${months.toString().padStart(2, '0')}M`;
+  };
+
   // Check for code in URL (callback handling)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -219,6 +236,93 @@ function App() {
     return data;
   };
 
+  const exportToCSV = () => {
+    // Headers
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Name,Email,Team,Birthday,HiringDate,TotalVacationDays\n";
+
+    // Data
+    users.forEach(user => {
+      const row = [
+        `"${user.name}"`,
+        `"${user.email}"`,
+        `"${user.team || ''}"`,
+        `"${user.birthday || ''}"`,
+        `"${user.hiringDate || ''}"`,
+        `"${user.totalVacationDays}"`
+      ].join(",");
+      csvContent += row + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "roster_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const importFromCSV = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const text = evt.target.result;
+      const lines = text.split('\n');
+      const newUsers = [];
+
+      // Skip header assuming standard format
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+
+        // Simple CSV parse handling quotes
+        const match = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+        // Fallback for simple split if regex fails or simple CSV
+        const cols = lines[i].split(',').map(c => c.replace(/^"|"$/g, '').trim());
+
+        if (cols.length >= 2) {
+          newUsers.push({
+            name: cols[0],
+            email: cols[1],
+            team: cols[2] || '',
+            birthday: cols[3] || '',
+            hiringDate: cols[4] || '',
+            totalVacationDays: parseInt(cols[5]) || 20
+          });
+        }
+      }
+
+      if (newUsers.length > 0) {
+        try {
+          const res = await fetch(`${API_URL}/users/bulk`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newUsers)
+          });
+
+          if (res.ok) {
+            alert(`Successfully imported ${newUsers.length} users!`);
+            fetchUsers();
+          } else {
+            const err = await res.json();
+            alert(`Import failed: ${err.error}`);
+          }
+        } catch (error) {
+          console.error("Import error", error);
+          alert("Failed to import users.");
+        }
+      } else {
+        alert("No valid users found in CSV.");
+      }
+    };
+    reader.readAsText(file);
+    // Reset input
+    e.target.value = '';
+  };
+
+
   const YearlyView = () => {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const vacationData = getVacationData();
@@ -251,6 +355,16 @@ function App() {
     };
 
     const [hoveredDay, setHoveredDay] = useState(null);
+
+    const getAnniversaries = (date) => {
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      const suffix = `-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+      const filteredUsers = selectedTeamFilter === 'All'
+        ? users
+        : users.filter(u => (u.team || 'Unassigned') === selectedTeamFilter);
+      return filteredUsers.filter(u => u.hiringDate && u.hiringDate.endsWith(suffix)).map(u => u.name);
+    };
 
     return (
       <div style={{ position: 'relative' }}>
@@ -287,6 +401,14 @@ function App() {
                 <div style={{ fontSize: '0.75rem', color: '#ccc' }}>Birthday:</div>
                 {hoveredDay.birthdays.map((name, i) => (
                   <div key={i} style={{ color: 'var(--accent-yellow)' }}>🎂 {name}</div>
+                ))}
+              </div>
+            )}
+            {hoveredDay.anniversaries && hoveredDay.anniversaries.length > 0 && (
+              <div>
+                <div style={{ fontSize: '0.75rem', color: '#ccc' }}>Anniversary:</div>
+                {hoveredDay.anniversaries.map((name, i) => (
+                  <div key={i} style={{ color: 'var(--accent-yellow)' }}>⭐ {name}</div>
                 ))}
               </div>
             )}
@@ -342,7 +464,8 @@ function App() {
                     const dateStr = date.toISOString().split('T')[0];
                     const dayData = vacationData[dateStr] || { count: 0, names: [] };
                     const birthdays = getBirthdays(date);
-                    const hasContent = dayData.count > 0 || birthdays.length > 0;
+                    const anniversaries = getAnniversaries(date);
+                    const hasContent = dayData.count > 0 || birthdays.length > 0 || anniversaries.length > 0;
 
                     return (
                       <div
@@ -355,7 +478,8 @@ function App() {
                               y: rect.top,
                               date: date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
                               vacations: dayData.names,
-                              birthdays: birthdays
+                              birthdays: birthdays,
+                              anniversaries: anniversaries
                             });
                           }
                         }}
@@ -376,6 +500,9 @@ function App() {
                         {date.getDate()}
                         {birthdays.length > 0 && (
                           <span className="birthday-glow" style={{ position: 'absolute', top: '-5px', right: '-5px', fontSize: '1.2rem', pointerEvents: 'none', zIndex: 1 }}>🎂</span>
+                        )}
+                        {anniversaries.length > 0 && (
+                          <span className="anniversary-glow" style={{ position: 'absolute', top: '-5px', left: '-5px', fontSize: '1rem', pointerEvents: 'none', zIndex: 1 }}>⭐</span>
                         )}
                       </div>
                     );
@@ -522,7 +649,7 @@ function App() {
                 className="btn"
                 onClick={() => {
                   setEditingUserId(null);
-                  setFormData({ name: '', email: '', team: '', birthday: '', totalVacationDays: 20 });
+                  setFormData({ name: '', email: '', team: '', birthday: '', hiringDate: '', totalVacationDays: 20 });
                   setView('add-user');
                 }}
                 style={{
@@ -541,187 +668,247 @@ function App() {
               </button>
             </>
           )}
-        </div>
-      </header>
 
-      {view === 'yearly' && <YearlyView />}
-
-      {view === 'dashboard' && (
-        <div>
-          {Object.entries(users
-            .filter(user => selectedTeamFilter === 'All' || (user.team || 'Unassigned') === selectedTeamFilter)
-            .reduce((acc, user) => {
-              const team = user.team || 'Unassigned';
-              if (!acc[team]) acc[team] = [];
-              acc[team].push(user);
-              return acc;
-            }, {})).sort((a, b) => a[0].localeCompare(b[0])).map(([team, teamUsers]) => (
-              <div key={team} style={{ marginBottom: '2rem' }}>
-                <h2 style={{
-                  backgroundColor: 'var(--primary-color)',
+          {view === 'dashboard' && (
+            <>
+              <button
+                className="btn"
+                onClick={exportToCSV}
+                style={{
+                  backgroundColor: 'var(--accent-green)',
                   color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: 'var(--border-radius)',
-                  marginBottom: '1rem',
-                  fontSize: '1.5rem',
-                  boxShadow: 'var(--shadow)'
-                }}>
-                  {team}
-                </h2>
-                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                  {teamUsers.map(user => (
-                    <div key={user.id} className="card" onClick={() => { setSelectedUser(user); setView('user-details'); }} style={{ cursor: 'pointer', textAlign: 'center', padding: '1rem' }}>
-                      <h3 style={{ marginBottom: '0.25rem', color: 'var(--primary-color)', fontSize: '1.1rem' }}>{user.name}</h3>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{user.team || 'No Team'}</p>
-                      <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'center' }}>
-                        <p style={{ margin: 0, fontSize: '0.9rem' }}>
-                          🎂 {user.birthday ? new Date(user.birthday + 'T12:00:00').toLocaleString('default', { month: 'long', day: 'numeric' }) : 'Not set'}
-                        </p>
-                        <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--danger)', fontSize: '0.9rem' }}>
-                          🏖️ {calculateRemainingDays(user)} days left
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+                  border: 'none',
+                  whiteSpace: 'nowrap',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 1rem',
+                  boxSizing: 'border-box',
+                  gap: '0.5rem'
+                }}
+              >
+                ⬇️ Export CSV
+              </button>
+              <label
+                className="btn"
+                style={{
+                  backgroundColor: 'var(--secondary-color)',
+                  color: 'white',
+                  border: 'none',
+                  whiteSpace: 'nowrap',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 1rem',
+                  boxSizing: 'border-box',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  margin: 0
+                }}
+              >
+                ⬆️ Import CSV
+                <input type="file" accept=".csv" onChange={importFromCSV} style={{ display: 'none' }} />
+              </label>
+            </>
+          )}
         </div>
-      )}
+      </header >
 
-      {view === 'add-user' && (
-        <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h2>{editingUserId ? 'Edit Team Member' : 'Add New Team Member'}</h2>
-          <form onSubmit={handleAddUser}>
-            <label>Name</label>
-            <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+      {view === 'yearly' && <YearlyView />
+      }
 
-            <label>Email</label>
-            <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
+      {
+        view === 'dashboard' && (
+          <div>
+            {Object.entries(users
+              .filter(user => selectedTeamFilter === 'All' || (user.team || 'Unassigned') === selectedTeamFilter)
+              .reduce((acc, user) => {
+                const team = user.team || 'Unassigned';
+                if (!acc[team]) acc[team] = [];
+                acc[team].push(user);
+                return acc;
+              }, {})).sort((a, b) => a[0].localeCompare(b[0])).map(([team, teamUsers]) => (
+                <div key={team} style={{ marginBottom: '2rem' }}>
+                  <h2 style={{
+                    backgroundColor: 'var(--primary-color)',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: 'var(--border-radius)',
+                    marginBottom: '1rem',
+                    fontSize: '1.5rem',
+                    boxShadow: 'var(--shadow)'
+                  }}>
+                    {team}
+                  </h2>
+                  <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                    {teamUsers.map(user => (
+                      <div key={user.id} className="card" onClick={() => { setSelectedUser(user); setView('user-details'); }} style={{ cursor: 'pointer', textAlign: 'center', padding: '1rem' }}>
+                        <h3 style={{ marginBottom: '0.25rem', color: 'var(--primary-color)', fontSize: '1.1rem' }}>{user.name}</h3>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{user.team || 'No Team'}</p>
 
-            <label>Team</label>
-            <input value={formData.team} onChange={e => setFormData({ ...formData, team: e.target.value })} placeholder="e.g. Engineering, Design" />
+                        {user.hiringDate && (
+                          <div style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', backgroundColor: 'var(--bg-color)', padding: '0.2rem 0.5rem', borderRadius: '4px', display: 'inline-block' }}>
+                            Time: <strong>{calculateTenure(user.hiringDate)}</strong>
+                          </div>
+                        )}
 
-            <label>Birthday</label>
-            <input type="date" value={formData.birthday} onChange={e => setFormData({ ...formData, birthday: e.target.value })} />
-
-            <label>Total Vacation Days</label>
-            <input type="number" value={formData.totalVacationDays} onChange={e => setFormData({ ...formData, totalVacationDays: parseInt(e.target.value) })} />
-
-            <div className="flex" style={{ justifyContent: 'space-between', marginTop: '1rem' }}>
-              {editingUserId && (
-                <button type="button" className="btn btn-danger" onClick={handleDeleteUser}>Delete User</button>
-              )}
-              <div className="flex">
-                <button type="button" className="btn" onClick={() => { setView('dashboard'); setEditingUserId(null); }} style={{ marginRight: '0.5rem' }}>Cancel</button>
-                <button type="submit" className="btn btn-primary">{editingUserId ? 'Update Member' : 'Save Member'}</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {view === 'user-details' && selectedUser && (
-        <div>
-          <div className="flex justify-between" style={{ marginBottom: '1rem' }}>
-            <button className="btn" onClick={() => setView('dashboard')}>← Back</button>
-            <button className="btn" onClick={handleEditUserClick} style={{ backgroundColor: 'var(--primary-color)', color: 'white', border: 'none' }}>Edit Profile</button>
-          </div>
-
-
-
-          <div className="grid">
-            <div className="card">
-              <h3>{editingVacationId ? 'Edit Vacation' : 'Book Vacation'}</h3>
-              <form onSubmit={handleAddVacation}>
-                <label>Start Date</label>
-                <input
-                  name="startDate"
-                  type="date"
-                  value={vacationForm.startDate}
-                  onChange={e => setVacationForm({ ...vacationForm, startDate: e.target.value })}
-                  required
-                />
-
-                <label>End Date</label>
-                <input
-                  name="endDate"
-                  type="date"
-                  value={vacationForm.endDate}
-                  onChange={e => setVacationForm({ ...vacationForm, endDate: e.target.value })}
-                  required
-                />
-
-                <label>Holidays (to deduct)</label>
-                <input
-                  name="holidays"
-                  type="number"
-                  min="0"
-                  value={vacationForm.holidays}
-                  onChange={e => setVacationForm({ ...vacationForm, holidays: e.target.value })}
-                />
-
-                <div style={{ marginBottom: '1rem', padding: '0.5rem', background: 'var(--bg-color)', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
-                  <strong>Days to Deduct: {calculatedDays}</strong>
-                  <p style={{ fontSize: '0.8rem', margin: '0.2rem 0 0' }}>(Business days - Holidays)</p>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {editingVacationId && (
-                    <button type="button" className="btn" onClick={() => { setEditingVacationId(null); setVacationForm({ startDate: '', endDate: '', holidays: 0 }); }} style={{ flex: 1 }}>Cancel</button>
-                  )}
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>{editingVacationId ? 'Update' : 'Book Time Off'}</button>
-                </div>
-              </form>
-            </div>
-
-            <div className="card">
-              <h3>Vacation History</h3>
-              {selectedUser.vacations?.length === 0 ? (
-                <p style={{ color: 'var(--text-secondary)' }}>No vacations booked yet.</p>
-              ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {selectedUser.vacations?.map(v => (
-                    <li key={v.id} style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                      <div className="flex justify-between" style={{ alignItems: 'flex-start' }}>
-                        <div>
-                          <span>{v.startDate} → {v.endDate}</span>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>-{v.daysUsed} days</div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }} onClick={() => handleEditVacation(v)}>✏️</button>
-                          <button className="btn btn-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }} onClick={() => handleDeleteVacation(v.id)}>🗑️</button>
+                        <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'center' }}>
+                          <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                            🎂 {user.birthday ? new Date(user.birthday + 'T12:00:00').toLocaleString('default', { month: 'long', day: 'numeric' }) : 'Not set'}
+                          </p>
+                          <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--danger)', fontSize: '0.9rem' }}>
+                            🏖️ {calculateRemainingDays(user)} days left
+                          </p>
                         </div>
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                    ))}
+                  </div>
+                </div>
+              ))}
+          </div>
+        )
+      }
+
+      {
+        view === 'add-user' && (
+          <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <h2>{editingUserId ? 'Edit Team Member' : 'Add New Team Member'}</h2>
+            <form onSubmit={handleAddUser}>
+              <label>Name</label>
+              <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
+
+              <label>Email</label>
+              <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
+
+              <label>Team</label>
+              <input value={formData.team} onChange={e => setFormData({ ...formData, team: e.target.value })} placeholder="e.g. Engineering, Design" />
+
+              <label>Birthday</label>
+              <input type="date" value={formData.birthday} onChange={e => setFormData({ ...formData, birthday: e.target.value })} />
+
+              <label>Hiring Date</label>
+              <input type="date" value={formData.hiringDate} onChange={e => setFormData({ ...formData, hiringDate: e.target.value })} />
+
+              <label>Total Vacation Days</label>
+              <input type="number" value={formData.totalVacationDays} onChange={e => setFormData({ ...formData, totalVacationDays: parseInt(e.target.value) })} />
+
+              <div className="flex" style={{ justifyContent: 'space-between', marginTop: '1rem' }}>
+                {editingUserId && (
+                  <button type="button" className="btn btn-danger" onClick={handleDeleteUser}>Delete User</button>
+                )}
+                <div className="flex">
+                  <button type="button" className="btn" onClick={() => { setView('dashboard'); setEditingUserId(null); }} style={{ marginRight: '0.5rem' }}>Cancel</button>
+                  <button type="submit" className="btn btn-primary">{editingUserId ? 'Update Member' : 'Save Member'}</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )
+      }
+
+      {
+        view === 'user-details' && selectedUser && (
+          <div>
+            <div className="flex justify-between" style={{ marginBottom: '1rem' }}>
+              <button className="btn" onClick={() => setView('dashboard')}>← Back</button>
+              <button className="btn" onClick={handleEditUserClick} style={{ backgroundColor: 'var(--primary-color)', color: 'white', border: 'none' }}>Edit Profile</button>
             </div>
 
-            <div className="card">
-              <h3>User Profile</h3>
-              <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{selectedUser.name}</h2>
-                <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{selectedUser.email}</p>
-                {selectedUser.team && <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>{selectedUser.team}</p>}
+
+
+            <div className="grid">
+              <div className="card">
+                <h3>{editingVacationId ? 'Edit Vacation' : 'Book Vacation'}</h3>
+                <form onSubmit={handleAddVacation}>
+                  <label>Start Date</label>
+                  <input
+                    name="startDate"
+                    type="date"
+                    value={vacationForm.startDate}
+                    onChange={e => setVacationForm({ ...vacationForm, startDate: e.target.value })}
+                    required
+                  />
+
+                  <label>End Date</label>
+                  <input
+                    name="endDate"
+                    type="date"
+                    value={vacationForm.endDate}
+                    onChange={e => setVacationForm({ ...vacationForm, endDate: e.target.value })}
+                    required
+                  />
+
+                  <label>Holidays (to deduct)</label>
+                  <input
+                    name="holidays"
+                    type="number"
+                    min="0"
+                    value={vacationForm.holidays}
+                    onChange={e => setVacationForm({ ...vacationForm, holidays: e.target.value })}
+                  />
+
+                  <div style={{ marginBottom: '1rem', padding: '0.5rem', background: 'var(--bg-color)', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
+                    <strong>Days to Deduct: {calculatedDays}</strong>
+                    <p style={{ fontSize: '0.8rem', margin: '0.2rem 0 0' }}>(Business days - Holidays)</p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {editingVacationId && (
+                      <button type="button" className="btn" onClick={() => { setEditingVacationId(null); setVacationForm({ startDate: '', endDate: '', holidays: 0 }); }} style={{ flex: 1 }}>Cancel</button>
+                    )}
+                    <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>{editingVacationId ? 'Update' : 'Book Time Off'}</button>
+                  </div>
+                </form>
               </div>
 
-              <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: 'var(--border-radius)', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '2rem', color: 'var(--primary-color)', margin: '0 0 0.5rem 0' }}>
-                  {calculateRemainingDays(selectedUser)} / {selectedUser.totalVacationDays}
-                </h3>
-                <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>Days Available</p>
+              <div className="card">
+                <h3>Vacation History</h3>
+                {selectedUser.vacations?.length === 0 ? (
+                  <p style={{ color: 'var(--text-secondary)' }}>No vacations booked yet.</p>
+                ) : (
+                  <ul style={{ listStyle: 'none', padding: 0 }}>
+                    {selectedUser.vacations?.map(v => (
+                      <li key={v.id} style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
+                        <div className="flex justify-between" style={{ alignItems: 'flex-start' }}>
+                          <div>
+                            <span>{v.startDate} → {v.endDate}</span>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>-{v.daysUsed} days</div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button className="btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }} onClick={() => handleEditVacation(v)}>✏️</button>
+                            <button className="btn btn-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }} onClick={() => handleDeleteVacation(v.id)}>🗑️</button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
-              <div style={{ marginTop: '1.5rem' }}>
-                <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday + 'T12:00:00').toLocaleString('default', { month: 'long', day: 'numeric' }) : 'Not set'}</p>
+              <div className="card">
+                <h3>User Profile</h3>
+                <div style={{ marginBottom: '1rem' }}>
+                  <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{selectedUser.name}</h2>
+                  <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{selectedUser.email}</p>
+                  {selectedUser.team && <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0' }}>{selectedUser.team}</p>}
+                </div>
+
+                <div style={{ padding: '1rem', background: 'var(--bg-color)', borderRadius: 'var(--border-radius)', textAlign: 'center' }}>
+                  <h3 style={{ fontSize: '2rem', color: 'var(--primary-color)', margin: '0 0 0.5rem 0' }}>
+                    {calculateRemainingDays(selectedUser)} / {selectedUser.totalVacationDays}
+                  </h3>
+                  <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--text-secondary)' }}>Days Available</p>
+                </div>
+
+                <div style={{ marginTop: '1.5rem' }}>
+                  <p><strong>Birthday:</strong> {selectedUser.birthday ? new Date(selectedUser.birthday + 'T12:00:00').toLocaleString('default', { month: 'long', day: 'numeric' }) : 'Not set'}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 
