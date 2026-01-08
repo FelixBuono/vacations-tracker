@@ -752,7 +752,7 @@ function App() {
 
                         {user.hiringDate && (
                           <div style={{ margin: '0.5rem 0 0', fontSize: '0.8rem', backgroundColor: 'var(--inner-bg)', padding: '0.2rem 0.5rem', borderRadius: '4px', display: 'inline-block' }}>
-                            Time: <strong>{calculateTenure(user.hiringDate)}</strong>
+                            Tenure: <strong>{calculateTenure(user.hiringDate)}</strong>
                           </div>
                         )}
 
