@@ -27,16 +27,28 @@
 }
 
 body.dark-mode {
-  --bg-color: #121212;
+  /* Miami Vice Night Life Theme */
+  background: linear-gradient(rgba(43, 16, 85, 0.8), rgba(0, 0, 0, 0.9)), url('/night_life_bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  --bg-color: #2b1055;
+  /* Fallback for inner elements */
   --card-bg: #ffffff;
-  /* user requested white cards in dark mode */
   --text-main: #e0e0e0;
   --text-secondary: #a0a0a0;
-  --primary-color: #4fd1c5;
-  /* Brighter Teal */
+  --primary-color: #0d9488;
+  /* Muted Cyan/Teal */
   --primary-hover: #89e0d1;
+  --secondary-color: #ff0055;
+  /* Overriding global secondary for neon pink pop */
   --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+
+  --inner-bg: rgba(255, 255, 255, 0.9);
+  /* Slight transparency for inner elements or just white/light gray */
+  --inner-bg: #f3f4f6;
 }
 
 body.dark-mode .card {
